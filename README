@@ -1,0 +1,28 @@
+This is an arithmetic calculator program (tcp-server)
+
+Usage: tcp-calc
+---
+
+To add 
+git remote add origin https://github.com/r1fau2/tcp-calc.git
+git push -u origin main
+
+To clone
+git clone https://github.com/r1fau2/tcp-calc.git
+---
+
+To build (cmake and make are required)
+
+cd tcp-calc
+mkdir _build
+cd _build
+cmake ../src
+make
+
+or (cmake and ninja are required)
+
+cd tcp-calc
+mkdir _build
+cd _build
+cmake -G Ninja ../src
+ninja -j1

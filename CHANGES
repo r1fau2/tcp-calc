@@ -1,0 +1,22 @@
+This file contains major changes to tcp-calc
+
+##########################
+
+v-0.01
+	Start of CHANGES file.
+	
+	The initial source code is a copy of files from the cpp-chat directory
+	of the archive of sample programs
+	
+	(http://www.stolyarov.info/books/extra/progintro_e2_examples.tgz)
+	
+	to the books of A. V. Stolyarov "Programming: an introduction to the profession"
+	
+	(http://www.stolyarov.info/books/programming_intro/e2)
+
+##########################
+
+FORMAT:
+
+This file contains a list, in reverse chronological order, of major
+breakages or added features in tcp-calc.

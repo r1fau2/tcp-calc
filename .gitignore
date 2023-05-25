@@ -1,0 +1,9 @@
+*.out
+*.core
+*.o
+*.txt
+!data/*.txt
+!*CMakeLists.txt
+_build/*
+lib/*
+*.log
