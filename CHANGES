@@ -2,6 +2,18 @@ This file contains major changes to tcp-calc
 
 ##########################
 
+v-0.02
+	Added:
+	Finite state machine (FSM).
+	Calculator for integers from
+	
+	(https://www.programmersought.com/article/6248269569/).
+	
+	Removed:
+	Chat functions.
+	
+##########################
+
 v-0.01
 	Start of CHANGES file.
 	
@@ -12,7 +24,7 @@ v-0.01
 	
 	to the books of A. V. Stolyarov "Programming: an introduction to the profession"
 	
-	(http://www.stolyarov.info/books/programming_intro/e2)
+	(http://www.stolyarov.info/books/programming_intro/e2).
 
 ##########################
 

@@ -3,7 +3,6 @@
 #include <unistd.h>
 #include <errno.h>
 
-
 #include "sockets.hpp"
 
 EventSelector::~EventSelector()

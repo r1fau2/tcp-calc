@@ -7,6 +7,7 @@ set(SOURCE_EXE
 main.cpp
 sockets.cpp
 chat.cpp
+calc.cpp
 )
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)

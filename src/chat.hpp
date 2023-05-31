@@ -8,6 +8,8 @@ enum {
     qlen_for_listen = 16
 };
 
+enum fsm_states {fsm_in, fsm_pasw, fsm_work};
+
 class ChatServer;
 
 class ChatSession : FdHandler {
@@ -16,13 +18,13 @@ class ChatSession : FdHandler {
     char buffer[max_line_length+1];
     int buf_used;
     bool ignoring;
-
-    char *name;
+    
+	enum fsm_states state;
+    int result;
 
     ChatServer *the_master;
 
     ChatSession(ChatServer *a_master, int fd);
-    ~ChatSession();
 
     void Send(const char *msg);
 
@@ -31,7 +33,14 @@ class ChatSession : FdHandler {
     void ReadAndIgnore();
     void ReadAndCheck();
     void CheckLines();
-    void ProcessLine(const char *str);
+        
+    bool Login(const char *str);
+    bool Passwd(const char *str);
+    void StateStep(const char *str);
+        
+    bool Balance();
+    int Priority(char ch);
+    void Calc(const char *opt);
 };
 
 class ChatServer : public FdHandler {

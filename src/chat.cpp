@@ -4,27 +4,15 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <stack>
 
 #include "chat.hpp"
 
-static const char welcome_msg[] =
-    "Welcome to the chat, you are known as ";
-static const char entered_msg[] = " has entered the chat";
-static const char left_msg[] = " has left the chat";
-
-
-
 ChatSession::ChatSession(ChatServer *a_master, int fd)
     : FdHandler(fd, true), buf_used(0), ignoring(false),
-    name(0), the_master(a_master)
+    the_master(a_master), state(fsm_in), result(0) 
 {
-    Send("Your name please: ");
-}
-
-ChatSession::~ChatSession()
-{
-    if(name)
-        delete[] name;
+    Send("input: login <login>\n");
 }
 
 void ChatSession::Send(const char *msg)
@@ -41,7 +29,7 @@ void ChatSession::Handle(bool r, bool w)
         ignoring = true;
     }
     if(ignoring)
-        ReadAndIgnore();
+        ReadAndIgnore(); // Send("The string is too long\n");
     else
         ReadAndCheck();
 }
@@ -49,7 +37,7 @@ void ChatSession::Handle(bool r, bool w)
 void ChatSession::ReadAndIgnore()
 {
     int rc = read(GetFd(), buffer, sizeof(buffer));
-    if(rc < 1) {
+    if(rc < 1) { 						// EOF if rc == 0
         the_master->RemoveSession(this);
         return;
     }
@@ -68,14 +56,7 @@ void ChatSession::ReadAndIgnore()
 void ChatSession::ReadAndCheck()
 {
     int rc = read(GetFd(), buffer+buf_used, sizeof(buffer)-buf_used);
-    if(rc < 1) {
-        if(name) {
-            int len = strlen(name);
-            char *lmsg = new char[len + sizeof(left_msg) + 2];
-            sprintf(lmsg, "%s%s\n", name, left_msg);
-            the_master->SendAll(lmsg, this);
-            delete[] lmsg;
-        }
+    if(rc < 1) {				// EOF if rc == 0
         the_master->RemoveSession(this);
         return;
     }
@@ -93,7 +74,7 @@ void ChatSession::CheckLines()
             buffer[i] = 0;
             if(i > 0 && buffer[i-1] == '\r')
                 buffer[i-1] = 0;
-            ProcessLine(buffer);
+            StateStep(buffer);
             int rest = buf_used - i - 1;
             memmove(buffer, buffer + i + 1, rest);
             buf_used = rest;
@@ -103,30 +84,46 @@ void ChatSession::CheckLines()
     }
 }
 
-void ChatSession::ProcessLine(const char *str)
+bool ChatSession::Login(const char *str)
 {
-    int len = strlen(str);
-    if(!name) {
-        name = new char[len+1];
-        strcpy(name, str);
+	return true;
+}
 
-        char *wmsg = new char[len + sizeof(welcome_msg) + 2];
-        sprintf(wmsg, "%s%s\n", welcome_msg, name);
-        Send(wmsg);
-        delete[] wmsg;
+bool ChatSession::Passwd(const char *str)
+{
+	return true;
+}
 
-        char *emsg = new char[len + sizeof(entered_msg) + 2];
-        sprintf(emsg, "%s%s\n", name, entered_msg);
-        the_master->SendAll(emsg, this);
-        delete[] emsg;
-
-        return;
-    }
-    int nl = strlen(name);
-    char *msg = new char[nl + len + 5];
-    sprintf(msg, "<%s> %s\n", name, str);
-    the_master->SendAll(msg);
-    delete[] msg;
+void ChatSession::StateStep(const char *str)
+{
+	char *wmsg = new char[64];
+	switch(state) {
+	case fsm_in:
+		if (strstr(str, "login") == str && Login(str)) {
+			state = fsm_pasw;
+			sprintf(wmsg, "input: password <password>\n");
+		}
+		else 
+			sprintf(wmsg, "input: login <login>\n");	
+		break;
+	case fsm_pasw:
+		if (strstr(str, "password") == str && Passwd(str)) {
+			state = fsm_work;
+			sprintf(wmsg, "input: calc <expr> or logout\n");
+		}
+		break;
+	case fsm_work:
+		if (strstr(str, "logout") == str){
+			state = fsm_in;
+			sprintf(wmsg, "input: login <login>\n");
+		}
+		else if (strstr(str, "calc") == str && Balance()) {
+			Calc(str);
+			sprintf(wmsg, "%d\n%s\n", result, "input: calc <expr> or logout");
+		}
+	}
+	Send(wmsg);
+	delete[] wmsg;
 }
 
 //////////////////////////////////////////////////////////////////////
