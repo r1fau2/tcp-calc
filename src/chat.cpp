@@ -10,9 +10,16 @@
 
 ChatSession::ChatSession(ChatServer *a_master, int fd)
     : FdHandler(fd, true), buf_used(0), ignoring(false),
-    the_master(a_master), state(fsm_in), result(0) 
+    the_master(a_master), state(fsm_in),
+    name(0), balance(0), result(0) 
 {
-    Send("input: login <login>\n");
+    Send("\nlogin: ");
+}
+
+ChatSession::~ChatSession()
+{
+    if(name)
+        delete[] name;
 }
 
 void ChatSession::Send(const char *msg)
@@ -84,8 +91,26 @@ void ChatSession::CheckLines()
     }
 }
 
+/*
 bool ChatSession::Login(const char *str)
 {
+	int len = strlen(str);
+    if(!name) {
+        name = new char[len+1];
+        strcpy(name, str);
+
+        char *wmsg = new char[len + sizeof(welcome_msg) + 2];
+        sprintf(wmsg, "%s%s\n", welcome_msg, name);
+        Send(wmsg);
+        delete[] wmsg;
+
+        char *emsg = new char[len + sizeof(entered_msg) + 2];
+        sprintf(emsg, "%s%s\n", name, entered_msg);
+        the_master->SendAll(emsg, this);
+        delete[] emsg;
+
+        return;
+    }
 	return true;
 }
 
@@ -94,32 +119,40 @@ bool ChatSession::Passwd(const char *str)
 	return true;
 }
 
+*/
+
 void ChatSession::StateStep(const char *str)
 {
-	char *wmsg = new char[64];
+	char *wmsg = new char[max_out_line_length];
+	int len;
 	switch(state) {
 	case fsm_in:
-		if (strstr(str, "login") == str && Login(str)) {
-			state = fsm_pasw;
-			sprintf(wmsg, "input: password <password>\n");
-		}
-		else 
-			sprintf(wmsg, "input: login <login>\n");	
+		len = strlen(str);
+        name = new char[len+1];
+        strcpy(name, str);
+		state = fsm_pasw;
+		sprintf(wmsg, "\nРassword: ");
 		break;
 	case fsm_pasw:
-		if (strstr(str, "password") == str && Passwd(str)) {
+		if (Authent(str)) {
 			state = fsm_work;
-			sprintf(wmsg, "input: calc <expr> or logout\n");
+			sprintf(wmsg, "input: <expr> or logout\n");
+		}
+		else {
+			delete[] name;
+			state = fsm_in;
+			sprintf(wmsg, "\nLogin incorrect\nlogin: ");
 		}
 		break;
 	case fsm_work:
 		if (strstr(str, "logout") == str){
 			state = fsm_in;
-			sprintf(wmsg, "input: login <login>\n");
+			sprintf(wmsg, "\nlogin: ");
 		}
-		else if (strstr(str, "calc") == str && Balance()) {
+		else if (Balance()) {
 			Calc(str);
-			sprintf(wmsg, "%d\n%s\n", result, "input: calc <expr> or logout");
+			Logged(str);
+			sprintf(wmsg, "%d\n%s\n", result, "input: <expr> or logout");
 		}
 	}
 	Send(wmsg);
@@ -128,8 +161,8 @@ void ChatSession::StateStep(const char *str)
 
 //////////////////////////////////////////////////////////////////////
 
-ChatServer::ChatServer(EventSelector *sel, int fd)
-    : FdHandler(fd, true), the_selector(sel), first(0)
+ChatServer::ChatServer(EventSelector *sel, int fd, const char *dbpt, const char *lgpt)
+    : FdHandler(fd, true), the_selector(sel), first(0), dbpath(dbpt), logpath(lgpt)
 {
     the_selector->Add(this);
 }
@@ -146,7 +179,7 @@ ChatServer::~ChatServer()
     the_selector->Remove(this);
 }
 
-ChatServer *ChatServer::Start(EventSelector *sel, int port)
+ChatServer *ChatServer::Start(EventSelector *sel, int port, const char *dbpt, const char *lgpt)
 {
     int ls, opt, res;
     struct sockaddr_in addr;
@@ -168,8 +201,8 @@ ChatServer *ChatServer::Start(EventSelector *sel, int port)
     res = listen(ls, qlen_for_listen);
     if(res == -1)
         return 0;
-
-    return new ChatServer(sel, ls);
+    
+    return new ChatServer(sel, ls, dbpt, lgpt);
 }
 
 void ChatServer::RemoveSession(ChatSession *s)

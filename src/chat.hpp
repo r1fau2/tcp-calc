@@ -4,7 +4,8 @@
 #include "sockets.hpp"
 
 enum {
-    max_line_length = 1023,
+    max_in_line_length = 1023,
+    max_out_line_length = 128,
     qlen_for_listen = 16
 };
 
@@ -15,16 +16,20 @@ class ChatServer;
 class ChatSession : FdHandler {
     friend class ChatServer;
 
-    char buffer[max_line_length+1];
+    char buffer[max_in_line_length+1];
     int buf_used;
     bool ignoring;
     
-	enum fsm_states state;
+    char *name;
+    int balance;
     int result;
-
+    
+	enum fsm_states state;
+    
     ChatServer *the_master;
 
     ChatSession(ChatServer *a_master, int fd);
+    ~ChatSession();
 
     void Send(const char *msg);
 
@@ -34,13 +39,14 @@ class ChatSession : FdHandler {
     void ReadAndCheck();
     void CheckLines();
         
-    bool Login(const char *str);
-    bool Passwd(const char *str);
-    void StateStep(const char *str);
-        
+    bool Authent(const char *str);
     bool Balance();
+    void Logged(const char *str);
+    
     int Priority(char ch);
     void Calc(const char *opt);
+    
+    void StateStep(const char *str);
 };
 
 class ChatServer : public FdHandler {
@@ -51,11 +57,15 @@ class ChatServer : public FdHandler {
     };
     item *first;
 
-    ChatServer(EventSelector *sel, int fd);
+    ChatServer(EventSelector *sel, int fd, const char *dbpt, const char *lgpt);
 public:
+    const char *dbpath;
+    const char *logpath;
+    
     ~ChatServer();
 
-    static ChatServer *Start(EventSelector *sel, int port);
+    static ChatServer *Start(EventSelector *sel, int port, const char *dbpt, const char *lgpt);
+    int InitDB(const char *sqlpt);
 
     void RemoveSession(ChatSession *s);
     void SendAll(const char *msg, ChatSession *except = 0);

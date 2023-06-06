@@ -2,6 +2,13 @@ This file contains major changes to tcp-calc
 
 ##########################
 
+v-0.03
+	Added:
+	Database with user accounts.
+	Logging of calculational queries.
+	
+##########################
+
 v-0.02
 	Added:
 	Finite state machine (FSM).
@@ -23,6 +30,7 @@ v-0.01
 	(http://www.stolyarov.info/books/extra/progintro_e2_examples.tgz)
 	
 	to the books of A. V. Stolyarov "Programming: an introduction to the profession"
+	(russian: Столяров А. В. Программирование: введение в профессию)
 	
 	(http://www.stolyarov.info/books/programming_intro/e2).
 

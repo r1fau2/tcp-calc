@@ -1,12 +1,8 @@
-#include "chat.hpp"
 #include <stack>
 
-using namespace std;
+#include "chat.hpp"
 
-bool ChatSession::Balance()
-{
-	return true;
-}
+using namespace std;
 
 int ChatSession::Priority(char ch)
 {
