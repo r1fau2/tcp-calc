@@ -82,7 +82,20 @@ bool ChatSession::Authent(const char *str)
 		return false;
 	} 	
 	
+	sql = string("SELECT count(*) FROM USERS WHERE LOGIN = '") +
+		name + "' AND PASSWD = '" + str + "';";
+		
+	rc = sqlite3_exec(db, sql.c_str(), callback, &outStr, &zErrMsg);
+	if (rc != SQLITE_OK) {
+		cerr << "Error in SELECT function." << zErrMsg << endl;
+		sqlite3_free(zErrMsg);
+		return false;
+	}
 	
+	if (stoi(outStr) == 0) {
+		cout << "Login incorrect\n" << endl;
+		return false;
+	}	
 	
 	sqlite3_close(db);
 	return true;

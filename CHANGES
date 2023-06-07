@@ -2,6 +2,12 @@ This file contains major changes to tcp-calc
 
 ##########################
 
+v-0.03_1
+	Added:
+	User authentication.
+	
+##########################
+
 v-0.03
 	Added:
 	Database with user accounts.
