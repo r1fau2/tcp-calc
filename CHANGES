@@ -2,6 +2,12 @@ This file contains major changes to tcp-calc
 
 ##########################
 
+v-0.03_2
+	Minor code changes in the user balance check
+	and calculator.
+	
+##########################
+
 v-0.03_1
 	Added:
 	User authentication.

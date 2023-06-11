@@ -1,7 +1,6 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <sqlite3.h>
 #include <chrono>
 
 #include "chat.hpp"
@@ -71,7 +70,6 @@ int ChatServer::InitDB(const char *sqlpt)
 
 bool ChatSession::Authent(const char *str)
 {
-	sqlite3 *db;
 	char *zErrMsg = 0;
 	int rc;
 	string outStr, sql;
@@ -101,9 +99,8 @@ bool ChatSession::Authent(const char *str)
 	return true;
 }
         
-bool ChatSession::Balance()
+bool ChatSession::CheckBalance()
 {
-	sqlite3 *db;
 	char *zErrMsg = 0;
 	int rc;
 	string outStr, sql;
@@ -125,25 +122,27 @@ bool ChatSession::Balance()
 		return false;
 	}
 	
-	if ((balance = stoi(outStr)) == 0) {
-		cout << name << "'s balance is spent" << endl;
-		sql = "COMMIT;";
-		
-		rc = sqlite3_exec(db, sql.c_str(), callback, &outStr, &zErrMsg);
-		if (rc != SQLITE_OK) {
-			cerr << "SQL error: " << zErrMsg << endl;
-			sqlite3_free(zErrMsg);
-			return false;
-		}
+	if ((balance = stoi(outStr)) == 0)
 		return false;
-	}
 	cout << name << "'s balance = " << balance << endl;
-	balance--;
+	return true;
+}
+
+bool ChatSession::FixBalance()
+{
+	char *zErrMsg = 0;
+	int rc;
+	string outStr, sql;
+	
+	if (calc_success) {
 		sql = "UPDATE USERS SET BALANCE = " +
-		to_string(balance) +
-		" WHERE LOGIN = '" +
-		name + "';" +
-		"COMMIT ;";
+			to_string(balance) +
+			" WHERE LOGIN = '" +
+			name + "';" +
+			"COMMIT ;";
+	}
+	else
+		sql = "COMMIT ;";
 		
 	rc = sqlite3_exec(db, sql.c_str(), callback, &outStr, &zErrMsg);
 	if (rc != SQLITE_OK) {

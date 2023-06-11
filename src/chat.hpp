@@ -1,5 +1,6 @@
 #ifndef CHAT_HPP_SENTRY
 #define CHAT_HPP_SENTRY
+#include <sqlite3.h>
 
 #include "sockets.hpp"
 
@@ -20,10 +21,12 @@ class ChatSession : FdHandler {
     int buf_used;
     bool ignoring;
     
+    sqlite3 *db;
     char *name;
     int balance;
+    bool calc_success;
     int result;
-    
+
 	enum fsm_states state;
     
     ChatServer *the_master;
@@ -40,11 +43,11 @@ class ChatSession : FdHandler {
     void CheckLines();
         
     bool Authent(const char *str);
-    bool Balance();
+    bool CheckBalance();
+    bool FixBalance();
     void Logged(const char *str);
     
-    int Priority(char ch);
-    void Calc(const char *opt);
+    bool Calc(const char *opt, char *strout);
     
     void StateStep(const char *str);
 };

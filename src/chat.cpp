@@ -11,7 +11,7 @@
 ChatSession::ChatSession(ChatServer *a_master, int fd)
     : FdHandler(fd, true), buf_used(0), ignoring(false),
     the_master(a_master), state(fsm_in),
-    name(0), balance(0), result(0) 
+    db(0), name(0), balance(0), calc_success(false), result(0)
 {
     Send("\nlogin: ");
 }
@@ -91,36 +91,6 @@ void ChatSession::CheckLines()
     }
 }
 
-/*
-bool ChatSession::Login(const char *str)
-{
-	int len = strlen(str);
-    if(!name) {
-        name = new char[len+1];
-        strcpy(name, str);
-
-        char *wmsg = new char[len + sizeof(welcome_msg) + 2];
-        sprintf(wmsg, "%s%s\n", welcome_msg, name);
-        Send(wmsg);
-        delete[] wmsg;
-
-        char *emsg = new char[len + sizeof(entered_msg) + 2];
-        sprintf(emsg, "%s%s\n", name, entered_msg);
-        the_master->SendAll(emsg, this);
-        delete[] emsg;
-
-        return;
-    }
-	return true;
-}
-
-bool ChatSession::Passwd(const char *str)
-{
-	return true;
-}
-
-*/
-
 void ChatSession::StateStep(const char *str)
 {
 	char *wmsg = new char[max_out_line_length];
@@ -149,10 +119,14 @@ void ChatSession::StateStep(const char *str)
 			state = fsm_in;
 			sprintf(wmsg, "\nlogin: ");
 		}
-		else if (Balance()) {
-			Calc(str);
-			Logged(str);
-			sprintf(wmsg, "%d\n%s\n", result, "input: <expr> or logout");
+		else if (CheckBalance() && Calc(str, wmsg)) {	// lock db
+			if (FixBalance())							// unlock db				
+				Logged(str);
+			sprintf(wmsg, "%d\n%s", result, "input: <expr> or logout\n");
+		}
+		else {
+			FixBalance();								// unlock db
+			sprintf(wmsg, "your balance is spent\ninput: logout\n");
 		}
 	}
 	Send(wmsg);
