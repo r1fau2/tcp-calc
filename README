@@ -2,6 +2,8 @@ This is an arithmetic calculator program (tcp-server)
 
 Usage:	tcp-calc
 Test:	telnet <ip-addr> 7777
+		login: bob (alice)
+		password: pswd-b (pswd-a)
 
 /////////////////////////////
 
