@@ -4,7 +4,6 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <stack>
 
 #include "chat.hpp"
 
@@ -126,7 +125,8 @@ void ChatSession::StateStep(const char *str)
 		}
 		else {
 			FixBalance();								// unlock db
-			sprintf(wmsg, "your balance is spent\ninput: logout\n");
+			if (balance == 0)
+				sprintf(wmsg, "your balance is spent\ninput: logout\n");
 		}
 	}
 	Send(wmsg);

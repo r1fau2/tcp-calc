@@ -2,6 +2,13 @@ This file contains major changes to tcp-calc
 
 ##########################
 
+v-0.04
+	Added:
+	Partial validation of the correctness
+	of the expression for calculation
+
+##########################
+
 v-0.03_2
 	Minor code changes in the user balance check
 	and calculator.
