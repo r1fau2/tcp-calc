@@ -1,7 +1,9 @@
 This is an arithmetic calculator program (tcp-server)
 
-Usage: tcp-calc
----
+Usage:	tcp-calc
+Test:	telnet <ip-addr> 7777
+
+/////////////////////////////
 
 To add 
 git remote add origin https://github.com/r1fau2/tcp-calc.git
@@ -9,7 +11,8 @@ git push -u origin main
 
 To clone
 git clone https://github.com/r1fau2/tcp-calc.git
----
+
+/////////////////////////////
 
 To build (cmake and make are required)
 
