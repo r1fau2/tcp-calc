@@ -1,9 +1,10 @@
 #include <stdio.h>  // for sprintf
+#include <regex>
 #include <stack>
 
 #include "chat.hpp"
 
-//using namespace std;
+using namespace std;
 
 int ValidAndPrior(char ch)
 {
@@ -23,25 +24,75 @@ int ValidAndPrior(char ch)
 	}
 }
 
+int ParseDouble(const char *opt, int start, double *num)
+{
+    int i = start;
+    while (opt[i] != '\0' && isdigit(opt[i]))
+		i++;
+    if (opt[i] == '.') {
+		i++;
+		while (opt[i] != '\0' && isdigit(opt[i]))
+			i++;
+	}
+	double res;
+	sscanf(opt+start, "%lf", &res);
+	*num = res;
+	return i;
+}
+
+bool Sign(const char *opt, int &i, int *sign)
+{
+	if (i == 0 ||
+	!isdigit(opt[i-1]) && (i>0 && opt[i-1] != '.' || i>1 &&! isdigit(opt[i-2]))) {
+		if (opt[i] == '-')
+			*sign *= -1;
+		printf("i = %d\n", i);
+		i++;
+		return true;
+	}	
+	return false;
+}
+
 bool ChatSession::Calc(const char *opt, char *wmsg)
 {
-	std::stack<char> s_opt;
-    std::stack<int> s_num;
-    int i = 0, tmp = 0;
+	stack<char> s_opt;
+    stack<double> s_num;
+    int i = 0, sign = 1;
     double l_num, r_num;
-
+    
+    std::string s = opt;
+    std::regex r("\\s+");
+    s = std::regex_replace(s, r, "");						// remove spase symbols 
+    opt = s.c_str();
+    
 	while((opt[i] != '\0' || !s_opt.empty()) && ValidAndPrior(opt[i])) {
-		if (opt[i] == ' ' || opt[i] == '\t')				// ignor spase symbol 
-			i++;
-		else if(opt[i] >= '0' && opt[i] <= '9') {			// find a number
-			tmp = tmp * 10 + opt[i] - '0';
-			i++;
-			if(opt[i] > '9' || opt[i] < '0') {
-				s_num.push(tmp);
-				tmp = 0;
-			}    
+			
+		if(opt[i] == '+' || opt[i] == '-') {				// find operand sign
+			if (opt[i+1] == '*' || opt[i+1] == '/') {
+				sprintf(wmsg, "your expression is not correct\ninput: <expr> or logout\n");
+				calc_success = false;
+				return false;
+			}
+			if (!Sign(opt, i, &sign) && (s_opt.empty() || s_opt.top() == '(')) {
+				s_opt.push(opt[i]);							// binary operator
+                i++;
+			}
 		}
-		else {												// find a operator	
+		else if(isdigit(opt[i]) || opt[i] == '.') {			// find a operand
+			if (opt[i] == '.') {
+				if (!isdigit(opt[i+1])) {
+					sprintf(wmsg, "your expression is not correct\ninput: <expr> or logout\n");
+					calc_success = false;
+					return false;
+				} else
+					i++;
+			}	
+			double num = 0;
+			i = ParseDouble(opt, i, &num);
+			s_num.push(sign*num);
+			sign = 1;
+		}
+		else {														// find a operator	
 			// nothing do (parse stage)
 			if (opt[i] == ')' && s_opt.empty()) {
 					sprintf(wmsg, "unpaired ')' in %d-th position\ninput: <expr> or logout\n", i);

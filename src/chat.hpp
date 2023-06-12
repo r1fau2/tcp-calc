@@ -25,7 +25,7 @@ class ChatSession : FdHandler {
     char *name;
     int balance;
     bool calc_success;
-    int result;
+    double result;
 
 	enum fsm_states state;
     
