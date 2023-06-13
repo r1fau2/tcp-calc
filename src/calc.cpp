@@ -151,6 +151,11 @@ bool ChatSession::Calc(const char *opt, char *wmsg)
 					s_num.push(l_num * r_num);
 					break;    
                 case'/':
+					if (r_num == 0) {
+						sprintf(wmsg, "division by zero\ninput: <expr> or logout\n");
+						calc_success = false;
+						return false;
+					}
 					s_num.push(l_num / r_num);
 					break;
 				default:
