@@ -91,7 +91,6 @@ bool ChatSession::Authent(const char *str)
 	}
 	
 	if (stoi(outStr) == 0) {
-		cout << "Login incorrect\n" << endl;
 		return false;
 	}	
 	
@@ -124,7 +123,6 @@ bool ChatSession::CheckBalance()
 	
 	if ((balance = stoi(outStr)) == 0)
 		return false;
-	cout << name << "'s balance = " << balance << endl;
 	return true;
 }
 
@@ -154,7 +152,7 @@ bool ChatSession::FixBalance()
 	sqlite3_close(db);
 	return true;
 }
-    
+
 void ChatSession::Logged(const char *str)
 {
 	ofstream out(the_master->logpath, ios::out | ios::app);

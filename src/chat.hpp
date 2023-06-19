@@ -46,9 +46,9 @@ class ChatSession : FdHandler {
     bool CheckBalance();
     bool FixBalance();
     void Logged(const char *str);
-    
+
     bool Calc(const char *opt, char *strout);
-    
+
     void StateStep(const char *str);
 };
 
