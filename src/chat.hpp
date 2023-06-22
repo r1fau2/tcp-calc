@@ -5,8 +5,10 @@
 #include "sockets.hpp"
 
 enum {
-    max_in_line_length = 1023,
-    max_out_line_length = 128,
+    //max_in_line_length = 1023,
+    //max_out_line_length = 128,
+    max_in_line_length = 256,
+    max_out_line_length = 2 * max_in_line_length + 64,
     qlen_for_listen = 16
 };
 
@@ -69,9 +71,7 @@ public:
 
     static ChatServer *Start(EventSelector *sel, int port, const char *dbpt, const char *lgpt);
     int InitDB(const char *sqlpt);
-
     void RemoveSession(ChatSession *s);
-    void SendAll(const char *msg, ChatSession *except = 0);
 
 private:
     virtual void Handle(bool r, bool w);

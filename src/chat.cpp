@@ -34,8 +34,12 @@ void ChatSession::Handle(bool r, bool w)
         buf_used = 0;
         ignoring = true;
     }
-    if(ignoring)
-        ReadAndIgnore(); // Send("The string is too long\n");
+    if(ignoring) {
+		Send("your string is too long\ninput: <expr> or logout\n");
+		ReadAndIgnore();
+	}
+    //if(ignoring)
+      //  ReadAndIgnore(); // Send("The string is too long\n");
     else
         ReadAndCheck();
 }
@@ -192,14 +196,6 @@ void ChatServer::RemoveSession(ChatSession *s)
             return;
         }
     }
-}
-
-void ChatServer::SendAll(const char *msg, ChatSession *except)
-{
-    item *p;
-    for(p = first; p; p = p->next)
-        if(p->s != except)
-            p->s->Send(msg);
 }
 
 void ChatServer::Handle(bool r, bool w)

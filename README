@@ -4,6 +4,8 @@ Usage:	tcp-calc
 Test:	telnet 		<ip-addr> 7777
 		login: 		bob (alice)
 		Password:	pswd-b (pswd-a)
+		
+For load test use https://github.com/r1fau2/load-test.		
 
 /////////////////////////////
 
