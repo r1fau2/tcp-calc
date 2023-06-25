@@ -1,24 +1,30 @@
-This is an arithmetic calculator program (tcp-server)
+This is an arithmetic calculator (tcp-server).
 
 Usage:	tcp-calc
 Test:	telnet 		<ip-addr> 7777
 		login: 		bob (alice)
 		Password:	pswd-b (pswd-a)
 		
+The calculator works with a positive balance (the initial is 2000000
+(for the load test) for Bob and 32 for Alice, set in "data/init.sql")
+and decrements it with each calculation, which is logged in "data/tcp-calc.log".
+
 For load test use https://github.com/r1fau2/load-test.		
 
-/////////////////////////////
+//////////////////////////////////////////////////////
 
-To add 
+To add:
 git remote add origin https://github.com/r1fau2/tcp-calc.git
 git push -u origin main
 
-To clone
+To clone:
 git clone https://github.com/r1fau2/tcp-calc.git
 
-/////////////////////////////
+//////////////////////////////////////////////////////
 
-To build (cmake and make are required)
+Sqlite3 is required for the build.
+
+To build (cmake and make are required):
 
 cd tcp-calc
 mkdir _build

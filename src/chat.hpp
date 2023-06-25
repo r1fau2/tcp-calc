@@ -5,8 +5,6 @@
 #include "sockets.hpp"
 
 enum {
-    //max_in_line_length = 1023,
-    //max_out_line_length = 128,
     max_in_line_length = 256,
     max_out_line_length = 2 * max_in_line_length + 64,
     qlen_for_listen = 16

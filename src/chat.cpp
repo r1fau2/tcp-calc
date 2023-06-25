@@ -38,8 +38,6 @@ void ChatSession::Handle(bool r, bool w)
 		Send("your string is too long\ninput: <expr> or logout\n");
 		ReadAndIgnore();
 	}
-    //if(ignoring)
-      //  ReadAndIgnore(); // Send("The string is too long\n");
     else
         ReadAndCheck();
 }
