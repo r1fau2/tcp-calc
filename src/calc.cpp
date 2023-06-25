@@ -191,15 +191,13 @@ bool ChatSession::Calc(const char *opt, char *wmsg)
 			}    
         }
 	}
-	if (!s_num.empty()) {
-		result = s_num.top();
-		calc_success = true;
-		balance--;
-		return true;
-	} 
-	else {
+	if (s_num.empty()) {
 		sprintf(wmsg, "input: <expr> or logout\n");
 		calc_success = false;
 		return false;			// empty input  
-	}
+	} 
+	result = s_num.top();
+	calc_success = true;
+	balance--;
+	return true;
 }

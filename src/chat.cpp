@@ -123,7 +123,7 @@ void ChatSession::StateStep(const char *str)
 		else if (CheckBalance() && Calc(str, wmsg)) {	// lock db
 			if (FixBalance())							// unlock db				
 				Logged(str);
-			sprintf(wmsg, "%lf\n%s", result, "input: <expr> or logout\n");
+			sprintf(wmsg, "%.6lf\n%s", result, "input: <expr> or logout\n");
 		}
 		else {
 			FixBalance();								// unlock db
